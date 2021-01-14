@@ -5,7 +5,7 @@ Referance: [https://docs.github.com/en/free-pro-team@latest/rest/reference/billi
 ## Options
 | Name | Flag | Env vars | Default | Description |
 |---|---|---|---|---|
-| Github Token | token, t | TOKEN | - | Personnal Access Token |
+| Github Token | token, t | TOKEN | - | Personnal Access Token. Organization mode must have the `repo` or `admin:org` scope, User mode must have the `user` scope. |
 | Github Organization | organization, o | ORGANIZATION | - | Organization name to get GitHub billing report, mutually exclusive with User |
 | Github User | user, u | USER | - | User name to get GitHub billing report, mutually exclusive with Organization |
 | Refresh | refresh, r | REFRESH | 300 | Refresh time fetch GitHub billing report in sec |
