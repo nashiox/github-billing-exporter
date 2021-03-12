@@ -151,27 +151,38 @@ func getGitHubActionsBilling(mode apiMode, args *Args) {
 	}
 
 	for {
+		time.Sleep(time.Duration(args.Refresh) * time.Second)
+
 		var p actionsBilling
 		req, err := http.NewRequest("GET", baseURL, nil)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", args.Token))
 
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Println(err)
+			continue
 		}
 
 		err = json.NewDecoder(resp.Body).Decode(&p)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 		resp.Body.Close()
 
 		f, err := strconv.ParseFloat(p.TotalPaidMinutesUsed, 64)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 
 		totalMinutesUsedGauge.WithLabelValues(owner).Set(float64(p.TotalMinutesUsed))
@@ -180,8 +191,6 @@ func getGitHubActionsBilling(mode apiMode, args *Args) {
 		minutesUsedBreakdownGauge.WithLabelValues(owner, "ubuntu").Set(float64(p.MinutesUsedBreakdown.UBUNTU))
 		minutesUsedBreakdownGauge.WithLabelValues(owner, "macos").Set(float64(p.MinutesUsedBreakdown.MACOS))
 		minutesUsedBreakdownGauge.WithLabelValues(owner, "windows").Set(float64(p.MinutesUsedBreakdown.WINDOWS))
-
-		time.Sleep(time.Duration(args.Refresh) * time.Second)
 	}
 }
 
@@ -204,29 +213,37 @@ func getGitHubPackagesBilling(mode apiMode, args *Args) {
 	}
 
 	for {
+		time.Sleep(time.Duration(args.Refresh) * time.Second)
+
 		var p packagesBilling
 		req, err := http.NewRequest("GET", baseURL, nil)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", args.Token))
 
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Println(err)
+			continue
 		}
 
 		err = json.NewDecoder(resp.Body).Decode(&p)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 		resp.Body.Close()
 
 		totalGigabytesBandwidthUsedGauge.WithLabelValues(owner).Set(float64(p.TotalGigabytesBandwidthUsed))
 		totalPaidGigabytesBandwidthUsedGauge.WithLabelValues(owner).Set(float64(p.TotalPaidGigabytesBandwidthUsed))
 		includedGigabytesBandwidthGauge.WithLabelValues(owner).Set(float64(p.IncludedGigabytesBandwidth))
-
-		time.Sleep(time.Duration(args.Refresh) * time.Second)
 	}
 }
 
@@ -249,28 +266,36 @@ func getGitHubSharedStorageBilling(mode apiMode, args *Args) {
 	}
 
 	for {
+		time.Sleep(time.Duration(args.Refresh) * time.Second)
+
 		var p sharedStorageBilling
 		req, err := http.NewRequest("GET", baseURL, nil)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", args.Token))
 
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Println(err)
+			continue
 		}
 
 		err = json.NewDecoder(resp.Body).Decode(&p)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			continue
 		}
 		resp.Body.Close()
 
 		daysLeftInBillingCycleGauge.WithLabelValues(owner).Set(float64(p.DaysLeftInBillingCycle))
 		estimatedPaidStorageForMonthGauge.WithLabelValues(owner).Set(float64(p.EstimatedPaidStorageForMonth))
 		estimatedStorageForMonthGauge.WithLabelValues(owner).Set(float64(p.EstimatedStorageForMonth))
-
-		time.Sleep(time.Duration(args.Refresh) * time.Second)
 	}
 }
