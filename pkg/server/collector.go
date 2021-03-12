@@ -154,24 +154,38 @@ func getGitHubActionsBilling(mode apiMode, args *Args) {
 		var p actionsBilling
 		req, err := http.NewRequest("GET", baseURL, nil)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", args.Token))
 
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Printf("Bad response status code %d\n", resp.StatusCode)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 
 		err = json.NewDecoder(resp.Body).Decode(&p)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 		resp.Body.Close()
 
 		f, err := strconv.ParseFloat(p.TotalPaidMinutesUsed, 64)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 
 		totalMinutesUsedGauge.WithLabelValues(owner).Set(float64(p.TotalMinutesUsed))
@@ -207,18 +221,30 @@ func getGitHubPackagesBilling(mode apiMode, args *Args) {
 		var p packagesBilling
 		req, err := http.NewRequest("GET", baseURL, nil)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", args.Token))
 
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Printf("Bad response status code %d\n", resp.StatusCode)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 
 		err = json.NewDecoder(resp.Body).Decode(&p)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 		resp.Body.Close()
 
@@ -252,18 +278,30 @@ func getGitHubSharedStorageBilling(mode apiMode, args *Args) {
 		var p sharedStorageBilling
 		req, err := http.NewRequest("GET", baseURL, nil)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 		req.Header.Set("Authorization", fmt.Sprintf("token %s", args.Token))
 
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			log.Printf("Bad response status code %d\n", resp.StatusCode)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 
 		err = json.NewDecoder(resp.Body).Decode(&p)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
 		}
 		resp.Body.Close()
 
