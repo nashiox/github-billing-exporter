@@ -95,7 +95,7 @@ var (
 
 type actionsBilling struct {
 	TotalMinutesUsed     int `json:"total_minutes_used"`
-	TotalPaidMinutesUsed int `json:"total_paid_minutes_used"`
+	TotalPaidMinutesUsed json.Number `json:"total_paid_minutes_used"`
 	IncludedMinutes      int `json:"included_minutes"`
 	MinutesUsedBreakdown struct {
 		UBUNTU  int `json:"UBUNTU"`
@@ -168,8 +168,13 @@ func getGitHubActionsBilling(mode apiMode, args *Args) {
 		}
 		resp.Body.Close()
 
+		f, err := p.TotalPaidMinutesUsed.Float64()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		totalMinutesUsedGauge.WithLabelValues(owner).Set(float64(p.TotalMinutesUsed))
-		totalPaidMinutesUsedGauge.WithLabelValues(owner).Set(float64(p.TotalPaidMinutesUsed))
+		totalPaidMinutesUsedGauge.WithLabelValues(owner).Set(f)
 		includedMinutesGauge.WithLabelValues(owner).Set(float64(p.IncludedMinutes))
 		minutesUsedBreakdownGauge.WithLabelValues(owner, "ubuntu").Set(float64(p.MinutesUsedBreakdown.UBUNTU))
 		minutesUsedBreakdownGauge.WithLabelValues(owner, "macos").Set(float64(p.MinutesUsedBreakdown.MACOS))
