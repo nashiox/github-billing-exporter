@@ -94,9 +94,9 @@ var (
 )
 
 type actionsBilling struct {
-	TotalMinutesUsed     int `json:"total_minutes_used"`
+	TotalMinutesUsed     int         `json:"total_minutes_used"`
 	TotalPaidMinutesUsed json.Number `json:"total_paid_minutes_used"`
-	IncludedMinutes      int `json:"included_minutes"`
+	IncludedMinutes      int         `json:"included_minutes"`
 	MinutesUsedBreakdown struct {
 		UBUNTU  int `json:"UBUNTU"`
 		MACOS   int `json:"MACOS"`
