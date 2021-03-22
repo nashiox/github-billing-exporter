@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -95,9 +94,9 @@ var (
 )
 
 type actionsBilling struct {
-	TotalMinutesUsed     int    `json:"total_minutes_used"`
-	TotalPaidMinutesUsed string `json:"total_paid_minutes_used"`
-	IncludedMinutes      int    `json:"included_minutes"`
+	TotalMinutesUsed     int         `json:"total_minutes_used"`
+	TotalPaidMinutesUsed json.Number `json:"total_paid_minutes_used"`
+	IncludedMinutes      int         `json:"included_minutes"`
 	MinutesUsedBreakdown struct {
 		UBUNTU  int `json:"UBUNTU"`
 		MACOS   int `json:"MACOS"`
@@ -181,7 +180,7 @@ func getGitHubActionsBilling(mode apiMode, args *Args) {
 		}
 		resp.Body.Close()
 
-		f, err := strconv.ParseFloat(p.TotalPaidMinutesUsed, 64)
+		f, err := p.TotalPaidMinutesUsed.Float64()
 		if err != nil {
 			log.Println(err)
 			time.Sleep(time.Duration(args.Refresh) * time.Second)
