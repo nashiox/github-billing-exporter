@@ -13,10 +13,10 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-go@v1
         with:
-          go-version: '1.15.5'
+          go-version: '1.16.2'
 
       - name: Build
-        run: CGO_ENABLED=0 GOOS=linux go build -trimpath -a -installsuffix cgo -o github-billing-expoerter cmd/main.go
+        run: CGO_ENABLED=0 GOOS=linux go build -trimpath -a -installsuffix cgo -o github-billing-exporter cmd/main.go
 
       - name: Create Release
         id: create_release
@@ -36,6 +36,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: github-billing-expoerter
-          asset_name: github-billing-expoerter
+          asset_path: github-billing-exporter
+          asset_name: github-billing-exporter
           asset_content_type: application/binary
