@@ -105,15 +105,15 @@ type actionsBilling struct {
 }
 
 type packagesBilling struct {
-	TotalGigabytesBandwidthUsed     int `json:"total_gigabytes_bandwidth_used"`
-	TotalPaidGigabytesBandwidthUsed int `json:"total_paid_gigabytes_bandwidth_used"`
-	IncludedGigabytesBandwidth      int `json:"included_gigabytes_bandwidth"`
+	TotalGigabytesBandwidthUsed     int         `json:"total_gigabytes_bandwidth_used"`
+	TotalPaidGigabytesBandwidthUsed json.Number `json:"total_paid_gigabytes_bandwidth_used"`
+	IncludedGigabytesBandwidth      int         `json:"included_gigabytes_bandwidth"`
 }
 
 type sharedStorageBilling struct {
-	DaysLeftInBillingCycle       int `json:"days_left_in_billing_cycle"`
-	EstimatedPaidStorageForMonth int `json:"estimated_paid_storage_for_month"`
-	EstimatedStorageForMonth     int `json:"estimated_storage_for_month"`
+	DaysLeftInBillingCycle       int         `json:"days_left_in_billing_cycle"`
+	EstimatedPaidStorageForMonth json.Number `json:"estimated_paid_storage_for_month"`
+	EstimatedStorageForMonth     int         `json:"estimated_storage_for_month"`
 }
 
 func init() {
@@ -180,7 +180,7 @@ func getGitHubActionsBilling(mode apiMode, args *Args) {
 		}
 		resp.Body.Close()
 
-		f, err := p.TotalPaidMinutesUsed.Float64()
+		totalPaidMinutesUsed, err := p.TotalPaidMinutesUsed.Float64()
 		if err != nil {
 			log.Println(err)
 			time.Sleep(time.Duration(args.Refresh) * time.Second)
@@ -188,7 +188,7 @@ func getGitHubActionsBilling(mode apiMode, args *Args) {
 		}
 
 		totalMinutesUsedGauge.WithLabelValues(owner).Set(float64(p.TotalMinutesUsed))
-		totalPaidMinutesUsedGauge.WithLabelValues(owner).Set(f)
+		totalPaidMinutesUsedGauge.WithLabelValues(owner).Set(totalPaidMinutesUsed)
 		includedMinutesGauge.WithLabelValues(owner).Set(float64(p.IncludedMinutes))
 		minutesUsedBreakdownGauge.WithLabelValues(owner, "ubuntu").Set(float64(p.MinutesUsedBreakdown.UBUNTU))
 		minutesUsedBreakdownGauge.WithLabelValues(owner, "macos").Set(float64(p.MinutesUsedBreakdown.MACOS))
@@ -247,8 +247,15 @@ func getGitHubPackagesBilling(mode apiMode, args *Args) {
 		}
 		resp.Body.Close()
 
+		totalPaidGigabytesBandwidthUsed, err := p.TotalPaidGigabytesBandwidthUsed.Float64()
+		if err != nil {
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
+		}
+
 		totalGigabytesBandwidthUsedGauge.WithLabelValues(owner).Set(float64(p.TotalGigabytesBandwidthUsed))
-		totalPaidGigabytesBandwidthUsedGauge.WithLabelValues(owner).Set(float64(p.TotalPaidGigabytesBandwidthUsed))
+		totalPaidGigabytesBandwidthUsedGauge.WithLabelValues(owner).Set(totalPaidGigabytesBandwidthUsed)
 		includedGigabytesBandwidthGauge.WithLabelValues(owner).Set(float64(p.IncludedGigabytesBandwidth))
 
 		time.Sleep(time.Duration(args.Refresh) * time.Second)
@@ -304,8 +311,15 @@ func getGitHubSharedStorageBilling(mode apiMode, args *Args) {
 		}
 		resp.Body.Close()
 
+		estimatedPaidStorageForMonth, err := p.EstimatedPaidStorageForMonth.Float64()
+		if err != nil {
+			log.Println(err)
+			time.Sleep(time.Duration(args.Refresh) * time.Second)
+			continue
+		}
+
 		daysLeftInBillingCycleGauge.WithLabelValues(owner).Set(float64(p.DaysLeftInBillingCycle))
-		estimatedPaidStorageForMonthGauge.WithLabelValues(owner).Set(float64(p.EstimatedPaidStorageForMonth))
+		estimatedPaidStorageForMonthGauge.WithLabelValues(owner).Set(estimatedPaidStorageForMonth)
 		estimatedStorageForMonthGauge.WithLabelValues(owner).Set(float64(p.EstimatedStorageForMonth))
 
 		time.Sleep(time.Duration(args.Refresh) * time.Second)
